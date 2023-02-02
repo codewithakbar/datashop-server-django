@@ -79,9 +79,15 @@ class VariationAdmin(admin.ModelAdmin):
     inlines = [ItemVariationInLineAdmin]
 
 
+class ItemAdmin(admin.ModelAdmin):
+    list_display = ['title', 'price', 'discount_price', 'category', 'label', 'slug', 'description', 'image']
+    search_fields = ['title', 'body']
+    prepopulated_fields = {'slug': ('title',)}
+
+
 admin.site.register(ItemVariation, ItemVariationAdmin)
 admin.site.register(Variation, VariationAdmin)
-admin.site.register(Item)
+admin.site.register(Item, ItemAdmin)
 admin.site.register(OrderItem)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(Payment)
