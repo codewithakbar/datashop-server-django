@@ -21,10 +21,38 @@ from .serializers import (
 )
 from core.models import Item, OrderItem, Order, Address, Payment, Coupon, Refund, UserProfile, Variation, ItemVariation
 
+# JWT Authorization
+from django.shortcuts import render
+from rest_framework.decorators import api_view
+from django.http import JsonResponse
+from .serializers import MyTokenObtainPairSerializer, RegisterSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import generics
+from django.contrib.auth.models import User
 
 import stripe
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = RegisterSerializer
+
+
+@api_view(['GET'])
+def getRoutes(request):
+    routes = [
+        '/api/token/',
+        '/api/register/',
+        '/api/token/refresh/'
+    ]
+    return Response(routes)
 
 
 class UserIDView(APIView):
@@ -76,7 +104,7 @@ class OrderQuantityUpdateView(APIView):
 
 
 class OrderItemDeleteView(DestroyAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
     queryset = OrderItem.objects.all()
 
 
@@ -174,7 +202,7 @@ class PaymentView(APIView):
 
         try:
 
-                # charge the customer because we cannot charge the token more than once
+            # charge the customer because we cannot charge the token more than once
             charge = stripe.Charge.create(
                 amount=amount,  # cents
                 currency="usd",
@@ -237,7 +265,8 @@ class PaymentView(APIView):
         except stripe.error.StripeError as e:
             # Display a very generic error to the user, and maybe send
             # yourself an email
-            return Response({"message": "Something went wrong. You were not charged. Please try again."}, status=HTTP_400_BAD_REQUEST)
+            return Response({"message": "Something went wrong. You were not charged. Please try again."},
+                            status=HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             # send an email to ourselves
@@ -265,7 +294,7 @@ class CountryListView(APIView):
 
 
 class AddressListView(ListAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
     serializer_class = AddressSerializer
 
     def get_queryset(self):
@@ -277,24 +306,24 @@ class AddressListView(ListAPIView):
 
 
 class AddressCreateView(CreateAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
     serializer_class = AddressSerializer
     queryset = Address.objects.all()
 
 
 class AddressUpdateView(UpdateAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
     serializer_class = AddressSerializer
     queryset = Address.objects.all()
 
 
 class AddressDeleteView(DestroyAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
     queryset = Address.objects.all()
 
 
 class PaymentListView(ListAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
     serializer_class = PaymentSerializer
 
     def get_queryset(self):

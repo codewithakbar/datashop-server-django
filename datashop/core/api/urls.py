@@ -14,8 +14,18 @@ from .views import (
     AddressUpdateView,
     AddressDeleteView,
     OrderItemDeleteView,
-    PaymentListView
+    PaymentListView,
+    MyTokenObtainPairView,
+    RegisterView,
+    getRoutes
+
 )
+
+from rest_framework_simplejwt.views import (
+    TokenRefreshView,
+)
+
+
 
 urlpatterns = [
     path('user-id/', UserIDView.as_view(), name='user-id'),
@@ -39,3 +49,11 @@ urlpatterns = [
     path('payments/', PaymentListView.as_view(), name='payment-list'),
 
 ]
+
+urlpatterns += [
+    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('register/', RegisterView.as_view(), name='auth_register'),
+    path('', getRoutes)
+]
+
